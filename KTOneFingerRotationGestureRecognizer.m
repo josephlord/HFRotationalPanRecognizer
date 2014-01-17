@@ -43,27 +43,41 @@
    if ( self )
    {
       self.velocitySampleSmoothingCount = 10;
+      self.previousTimes = [NSMutableArray array];
+      self.previousRotations = [NSMutableArray array];
    }
    return self;
 }
 
+-(void)reset {
+    [super reset];
+    [self.previousRotations removeAllObjects];
+    [self.previousTimes removeAllObjects];
+    self.velocity = 0;
+    self.lastRawRotation = 0;
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    [super touchesBegan:touches withEvent:event];
    // Fail when more than 1 finger detected.
    if ([[event touchesForGestureRecognizer:self] count] > 1) {
       [self setState:UIGestureRecognizerStateFailed];
+       return;
    }
-   
-   self.previousTimes = [NSMutableArray array];
-   self.previousRotations = [NSMutableArray array];
+    
+    [self.previousTimes removeAllObjects ];
+   [self.previousRotations removeAllObjects];
    self.velocity = 0;
    self.lastRawRotation = 0;
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    [super touchesMoved:touches withEvent:event];
    if ([self state] == UIGestureRecognizerStatePossible) {
-      [self setState:UIGestureRecognizerStateBegan];
+       //[self setState:UIGestureRecognizerStateBegan];
+       [self touchesBegan:touches withEvent:event];
    } else {
       [self setState:UIGestureRecognizerStateChanged];
    }
@@ -103,6 +117,8 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    [super touchesEnded:touches withEvent:event];
+    NSLog(@"touchesEnded");
    // Perform final check to make sure a tap was not misinterpreted.
    if ([self state] == UIGestureRecognizerStateChanged) {
       [self setState:UIGestureRecognizerStateEnded];
@@ -113,6 +129,8 @@
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    [super touchesCancelled:touches withEvent:event];
+    NSLog(@"touchesCancelled");
    [self setState:UIGestureRecognizerStateFailed];
 }
 
